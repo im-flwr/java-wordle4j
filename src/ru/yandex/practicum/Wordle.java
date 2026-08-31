@@ -1,18 +1,41 @@
 package ru.yandex.practicum;
 
-/*
-в главном классе нам нужно:
-    создать лог-файл (он должен передаваться во все классы)
-    создать загрузчик словарей WordleDictionaryLoader
-    загрузить словарь WordleDictionary с помощью класса WordleDictionaryLoader
-    затем создать игру WordleGame и передать ей словарь
-    вызвать игровой метод в котором в цикле опрашивать пользователя и передавать информацию в игру
-    вывести состояние игры и конечный результат
- */
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Scanner;
+
 public class Wordle {
 
     public static void main(String[] args) {
-
+        try (PrintWriter log = new PrintWriter(new FileWriter("wordle.log", true))) {
+            WordleDictionaryLoader loader = new WordleDictionaryLoader();
+            WordleDictionary dictionary = loader.load("words_ru.txt");
+            WordleGame game = new WordleGame(dictionary, log);
+            Scanner scanner = new Scanner(System.in);
+            while (true) {
+                System.out.println("Осталось попыток: " + game.getSteps());
+                System.out.println("Введите слово (или пустую строку для подсказки): ");
+                String input = scanner.nextLine();
+                if (input.isEmpty()) {
+                    System.out.println("Подсказка: " + game.getHint());
+                    continue;
+                }
+                try {
+                    game.makeGuess(input);
+                    String result = game.analyze(input);
+                    System.out.println(result);
+                    if (result.equals("+++++")) {
+                        System.out.println("Поздравляю! Вы угадали слово!");
+                        break;
+                    }
+                } catch (RuntimeException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+            scanner.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-
 }
