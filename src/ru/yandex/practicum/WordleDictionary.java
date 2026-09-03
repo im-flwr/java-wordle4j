@@ -5,6 +5,8 @@ import java.util.List;
 
 public class WordleDictionary {
 
+    private static final int WORD_LENGTH = 5;
+
     private List<String> words;
 
     public WordleDictionary(List<String> words) {
@@ -12,7 +14,7 @@ public class WordleDictionary {
         for (String word : words) {
             word = word.toLowerCase();
             word = word.replace('ё', 'e');
-            if (word.length() == 5) {
+            if (word.length() == WORD_LENGTH) {
                 filteredWords.add(word);
             }
         }

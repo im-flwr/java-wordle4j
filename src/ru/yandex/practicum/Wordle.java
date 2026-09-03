@@ -13,26 +13,40 @@ public class Wordle {
             WordleDictionary dictionary = loader.load("words_ru.txt");
             WordleGame game = new WordleGame(dictionary, log);
             Scanner scanner = new Scanner(System.in);
-            while (true) {
+            while (!game.isGameOver()) {
                 System.out.println("Осталось попыток: " + game.getSteps());
                 System.out.println("Введите слово (или пустую строку для подсказки): ");
                 String input = scanner.nextLine();
                 if (input.isEmpty()) {
-                    System.out.println("Подсказка: " + game.getHint());
+                    String hint = game.getHint();
+                    System.out.println("Подсказка: " + hint);
+                    log.println("Подсказка: " + hint);
+                    try {
+                        game.makeGuess(hint);
+                        System.out.println("Анализ подсказки: " + game.analyze(hint));
+                    } catch (GameOverException e) {
+                        System.out.println(e.getMessage());
+                    } catch (WordNotFoundInDictionary e) {
+                        System.out.println(e.getMessage());
+                    } catch (InvalidWordLength e) {
+                        System.out.println(e.getMessage());
+                    }
                     continue;
                 }
                 try {
                     game.makeGuess(input);
-                    String result = game.analyze(input);
-                    System.out.println(result);
-                    if (result.equals("+++++")) {
-                        System.out.println("Поздравляю! Вы угадали слово!");
-                        break;
-                    }
-                } catch (RuntimeException e) {
+                    System.out.println(game.analyze(input));
+                } catch (GameOverException e) {
+                    System.out.println(e.getMessage());
+                } catch (WordNotFoundInDictionary e) {
+                    System.out.println(e.getMessage());
+                } catch (InvalidWordLength e) {
+                    System.out.println(e.getMessage());
+                } catch (InvalidGuess e) {
                     System.out.println(e.getMessage());
                 }
             }
+            System.out.println("Игра окончена. Загаданное слово: " + game.getAnswer());
             scanner.close();
         } catch (IOException e) {
             e.printStackTrace();
